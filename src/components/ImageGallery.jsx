@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Share2, Check, Phone, Truck, Shield, RotateCcw, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Share2, Check, Phone, Truck, Shield, RotateCcw, Users, X } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 
-const ImageGallery = ({ product }) => {
+const ImageGallery = ({ product, handleCallNow, handleContactWhatsApp }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -368,7 +368,7 @@ const ImageGallery = ({ product }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
               <div className="flex items-center space-x-2">
                 <Truck className="w-5 h-5 text-blue-600" />
-                <span className="text-sm text-gray-600">Free Shipping</span>
+                <span className="text-sm text-gray-600">Fast Delivery</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-blue-600" />

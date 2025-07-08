@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
-  Tag, Award, ShoppingBag, X, LogOut, Settings
+  Tag, Award, ShoppingBag, X, LogOut, Settings, Home
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -14,9 +14,11 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
-    { path: `/admin/categories`, icon: <Tag className="mr-3" size={18} />, label: "Categories" },
-    { path: `/admin/brands`, icon: <Award className="mr-3" size={18} />, label: "Brands" },
-    { path: `/admin/products`, icon: <ShoppingBag className="mr-3" size={18} />, label: "Products" },
+    { path: `/`, icon: <Home className="mr-3" size={18} />, label: "Home" },
+    { path: `/hasan/admin/dashboard`, icon: <Settings className="mr-3" size={18} />, label: "Dashboard" },
+    { path: `/hasan/admin/categories`, icon: <Tag className="mr-3" size={18} />, label: "Categories" },
+    { path: `/hasan/admin/brands`, icon: <Award className="mr-3" size={18} />, label: "Brands" },
+    { path: `/hasan/admin/products`, icon: <ShoppingBag className="mr-3" size={18} />, label: "Products" },
   ];
 
   const navigate = useNavigate();
@@ -32,9 +34,8 @@ const AdminLayout = () => {
          },
          credentials: 'include', 
        });
-   
-       localStorage.removeItem("user"); 
-       navigate('/login');
+        Cookies.remove("csrf_access_token");
+       navigate('/');
      } catch (error) {
        console.error("Logout failed:", error);
      }
@@ -76,7 +77,7 @@ const AdminLayout = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 lg:h-screen">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -139,11 +140,12 @@ const AdminLayout = () => {
       </div>
 
       {/* Main content */}
-      <div className={`flex-1 overflow-hidden bg-gray-100`}>
-        <div className="lg:hidden p-4">
+      <div className="flex-1 flex flex-col min-h-0 lg:overflow-hidden bg-gray-100">
+        {/* Mobile menu button */}
+        <div className="lg:hidden p-4 flex-shrink-0">
           <button
             onClick={toggleSidebar}
-            className={`w-full flex items-center justify-center gap-2 bg-white text-gray-800 py-4 rounded-xl font-semibold shadow`}
+            className="w-full flex items-center justify-center gap-2 bg-white text-gray-800 py-4 rounded-xl font-semibold shadow"
             aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
           >
             <Settings size={20} />
@@ -152,8 +154,8 @@ const AdminLayout = () => {
         </div>
 
         {/* Content area */}
-        <div className="h-full overflow-y-auto">
-          <div className="container mx-auto px-4 py-6 lg:py-8">
+        <div className="flex-1 overflow-y-auto lg:h-full">
+          <div className="min-h-full">
             <Outlet />
           </div>
         </div>

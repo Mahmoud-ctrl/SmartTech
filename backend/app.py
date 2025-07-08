@@ -25,6 +25,7 @@ app.config['JWT_COOKIE_SAMESITE'] = 'lax'
 app.config['JWT_ACCESS_COOKIE_NAME'] = 'admin_token'
 app.config['JWT_COOKIE_HTTPONLY'] = True
 
+
 CORS(
     app,
     supports_credentials=True,
@@ -34,7 +35,7 @@ CORS(
             "origins": [
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "http://192.168.0.106:5173",
+                "http://192.168.0.108:5173",
                 "http://192.168.56.1:5173",
             ],
             "allow_headers": ["Authorization", "Content-Type", "X-CSRF-TOKEN"],

@@ -12,24 +12,15 @@ const AdminLogin = () => {
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem('adminToken');
-  //   if (token) {
-  //     navigate('/admin/dashboard');
-  //   }
-  // }, [navigate]);
-
   const handleLogin = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const csrfToken = Cookies.get("csrf_admin_token");
       const response = await fetch(`${API_URL}/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken
         },
         credentials: 'include',
         body: JSON.stringify({ username, password }),
@@ -37,7 +28,7 @@ const AdminLogin = () => {
 
       const data = await response.json();
       if (response.ok) {
-        navigate('/admin/dashboard');
+        navigate('/hasan/admin/dashboard');
       } else {
         setError(data.error || 'Invalid username or password.');
       }

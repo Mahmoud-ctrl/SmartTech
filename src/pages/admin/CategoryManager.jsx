@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Save, X, Tag, Shield } from "lucide-react";
 import axios from "axios";
+import Cookies from "js-cookie";
 const API_URL = import.meta.env.VITE_REACT_APP_API;
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
@@ -18,7 +19,9 @@ const CategoryManager = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/admin/categories`);
+      const res = await axios.get(`${API_URL}/admin/categories`, {
+        withCredentials: true,
+      });
       setCategories(res.data);
       setError("");
     } catch (err) {
@@ -34,9 +37,10 @@ const CategoryManager = () => {
     
     setLoading(true);
     try {
+      const csrfToken = Cookies.get('csrf_access_token');
       const res = await axios.post(`${API_URL}/admin/categories`, {
         name: newCategory.trim(),
-      });
+      }, {headers: {'X-CSRF-TOKEN': csrfToken}, withCredentials: true});
       setNewCategory("");
       fetchCategories();
       setError("");
@@ -53,7 +57,12 @@ const CategoryManager = () => {
     
     setLoading(true);
     try {
-      await axios.delete(`${API_URL}/admin/categories/${id}`);
+      const csrfToken = Cookies.get('csrf_access_token');
+      await axios.delete(`${API_URL}/admin/categories/${id}`, {
+        headers: { 'X-CSRF-TOKEN': csrfToken },
+        withCredentials: true,
+      }
+      );
       fetchCategories();
       setError("");
     } catch (err) {
@@ -71,7 +80,7 @@ const CategoryManager = () => {
     try {
       await axios.put(`${API_URL}/admin/categories/${id}`, {
         name: editName.trim(),
-      });
+      }, {headers: {'X-CSRF-TOKEN': Cookies.get('csrf_access_token')}, withCredentials: true});
       setEditMode(null);
       setEditName("");
       fetchCategories();

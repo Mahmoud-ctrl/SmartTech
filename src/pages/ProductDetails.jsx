@@ -62,7 +62,6 @@ const ProductDetails = () => {
     }
   };
 
-  console.log('Product: ', product);
 
   const fetchSimilarProducts = async () => {
     try {
@@ -77,7 +76,6 @@ const ProductDetails = () => {
     }
   };
 
-  console.log(product);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -97,14 +95,28 @@ const ProductDetails = () => {
     }
   };
 
-  const handleContactWhatsApp = () => {
-    const message = `Hi! I'm interested in ${product.title} - ${window.location.href}`;
-    const whatsappUrl = `https://wa.me/96171736695?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+   const handleContactWhatsApp = async () => {
+    const shareData = {
+      title: product.title,
+      text: `Hi! I'm interested in this product: ${product.title}`,
+      url: window.location.href 
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      const message = `${shareData.text}\n${shareData.url}`;
+      const whatsappUrl = `https://wa.me/96171545936?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   const handleCallNow = () => {
-    const phoneNumber = '96171736695';
+    const phoneNumber = '96171545936';
     window.location.href = `tel:${phoneNumber}`;
   }
 
@@ -166,6 +178,22 @@ const ProductDetails = () => {
   }
 
   return (
+    <>
+    <title>{`${product.title} - Aidiby SmartTech`}</title>
+    <meta name="description" content={product.description} />
+    {/* Open Graph / Facebook / WhatsApp meta tags */}
+    <meta property="og:type" content="product" />
+    <meta property="og:title" content={product.title} />
+    <meta property="og:description" content={product.description} />
+    <meta property="og:image" content={product.images?.[0]} />
+    <meta property="og:url" content={window.location.href} />
+    <meta property="og:site_name" content="Aidiby SmartTech" />
+      
+    {/* Twitter Card meta tags */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={product.title} />
+    <meta name="twitter:description" content={product.description} />
+    <meta name="twitter:image" content={product.images?.[0]} />
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <motion.div
@@ -211,7 +239,7 @@ const ProductDetails = () => {
       </motion.div>
 
       {/* Product Details */}
-      <ImageGallery product={product} />
+      <ImageGallery product={product} handleCallNow={handleCallNow} handleContactWhatsApp={handleContactWhatsApp} />
 
      {/*  Similar Products */}
       <motion.div
@@ -252,6 +280,7 @@ const ProductDetails = () => {
         </div>
       </motion.div>
     </div>
+    </>
   );
 };
 

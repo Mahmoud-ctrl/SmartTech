@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Save, X, Award, AlertCircle } from "lucide-react";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API;
 
@@ -23,7 +24,10 @@ const BrandManager = () => {
   const fetchBrands = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/admin/brands`);
+      const res = await axios.get(`${API_URL}/admin/brands`,{
+        withCredentials: true,
+      });
+      
       setBrands(res.data);
       setError('');
     } catch (err) {
@@ -37,7 +41,9 @@ const BrandManager = () => {
   // NEW: fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/categories`);
+      const res = await axios.get(`${API_URL}/admin/categories`,{
+        withCredentials: true,
+      });
       setCategories(res.data);
     } catch (err) {
       setError('Failed to fetch categories');
@@ -47,13 +53,19 @@ const BrandManager = () => {
 
   const handleBrandAdd = async () => { 
     if (!newBrand.trim() || !selectedCategory) return; // Require both fields
-    
+    const csrfToken = Cookies.get('csrf_access_token');
     setLoading(true);
     try {
       const res = await axios.post(`${API_URL}/admin/brands`, {
         name: newBrand.trim(),
         category_id: selectedCategory, 
-      });
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken
+        }
+      }
+    );
       setNewBrand("");
       setSelectedCategory("");
       fetchBrands();
@@ -91,9 +103,10 @@ const BrandManager = () => {
     
     setLoading(true);
     try {
-      await axios.put(`${axios}/admin/brands/${id}`, {
+      const csrfToken = Cookies.get('csrf_access_token');
+      await axios.put(`${API_URL}/admin/brands/${id}`, {
         name: editName.trim(),
-      });
+      }, {headers : {'X-CSRF-TOKEN': csrfToken}, withCredentials: true});
       setEditMode(null);
       setEditName("");
       fetchBrands();
@@ -120,13 +133,13 @@ const BrandManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-purple-600 rounded-lg">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
                 <Award className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -170,7 +183,7 @@ const BrandManager = () => {
         {/* Add Brand Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
         <div className="flex items-center space-x-3 mb-4">
-          <Plus className="w-5 h-5 text-purple-600" />
+          <Plus className="w-5 h-5 text-blue-600" />
           <h2 className="text-xl font-semibold text-gray-900">Add New Brand</h2>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -181,7 +194,7 @@ const BrandManager = () => {
               placeholder="Enter brand name..."
               onChange={(e) => setNewBrand(e.target.value)}
               onKeyPress={(e) => handleKeyPress(e, handleBrandAdd)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               disabled={loading}
             />
           </div>
@@ -190,7 +203,7 @@ const BrandManager = () => {
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               disabled={loading}
             >
               <option value="">Select category</option>
@@ -202,7 +215,7 @@ const BrandManager = () => {
           <button
             onClick={handleBrandAdd}
             disabled={loading || !newBrand.trim() || !selectedCategory}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add Brand</span>
@@ -222,7 +235,7 @@ const BrandManager = () => {
           <div className="divide-y divide-gray-200">
             {loading && brands.length === 0 ? (
               <div className="p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <p className="mt-2 text-gray-600">Loading brands...</p>
               </div>
             ) : brands.length === 0 ? (
@@ -242,7 +255,7 @@ const BrandManager = () => {
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                           onKeyPress={(e) => handleKeyPress(e, () => handleBrandUpdate(brand.id))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           autoFocus
                         />
                       </div>
@@ -268,7 +281,7 @@ const BrandManager = () => {
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-semibold text-sm">
                             {brand.name.charAt(0).toUpperCase()}
                           </span>
@@ -282,7 +295,7 @@ const BrandManager = () => {
                             setEditName(brand.name);
                           }}
                           disabled={loading}
-                          className="p-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
                           title="Edit brand"
                         >
                           <Edit2 className="w-4 h-4" />

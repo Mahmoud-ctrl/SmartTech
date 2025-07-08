@@ -18,7 +18,9 @@ const Card = ({
   isSale = false,
   onClick,
   onWishlist,
-  className = ''
+  className = '',
+  buttonText = 'Contact Now',
+  buttonIcon = <FaWhatsapp size={16} />,
 }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -147,8 +149,8 @@ const Card = ({
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
-          <FaWhatsapp size={16} />
-          {inStock ? 'Contact Now' : 'Out of Stock'}
+          {buttonIcon}
+          {inStock ? buttonText : 'Out of Stock'}
         </button>
       </div>
     </div>

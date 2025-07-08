@@ -5,7 +5,7 @@ import Card from '../components/ui/Card';
 import axios from 'axios';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import Drawer from '../components/Drawer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import createSlug from '../utils/CreateSlug';
 
 const API_URL = import.meta.env.VITE_REACT_APP_API;
@@ -34,6 +34,7 @@ const ProductsPage = () => {
   const isSale = location.state?.isSale || false;
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12); 
+  const navigate = useNavigate();
 
   // Fetch initial data
   useEffect(() => {
@@ -114,26 +115,8 @@ const ProductsPage = () => {
       setLoading(false);
     }
   };
-
-
-   const handleButtonClick = async (productId) => {
-      try {
-        await axios.post(`${API_URL}/products/${productId}/click`);
-        // Optional: show UI feedback or do something locally
-      } catch (err) {
-        console.error("Failed to register click", err);
-      }
-    };
-  
-    const handleContactWhatsApp = (productTitle) => {
-      const message = `Hi! I'm interested in ${productTitle} - ${window.location.href}`;
-      const whatsappUrl = `https://wa.me/96171234567?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    };
-  
     const handleClick = (product) => {
-      handleButtonClick(product.id);
-      handleContactWhatsApp(product.title);
+      navigate(`/products/${product.id}/${createSlug(product.title)}`);
     }
 
 
@@ -159,21 +142,6 @@ const ProductsPage = () => {
     setInStockOnly(false);
     setSearchTerm('');
     setIsDrawerOpen(false);
-  };
-
-  const handleAddToCart = (productId) => {
-    // Implement add to cart logic
-    console.log('Add to cart:', productId);
-  };
-
-  const handleWishlist = (productId) => {
-    // Implement wishlist logic
-    console.log('Add to wishlist:', productId);
-  };
-
-  const handleQuickView = (productId) => {
-    // Implement quick view logic
-    console.log('Quick view:', productId);
   };
 
   const currentCategory = categories.find(cat => cat.slug === category);
@@ -236,6 +204,31 @@ const ProductsPage = () => {
                 >
                   Clear All
                 </button>
+              </div>
+
+              {/* Category Dropdown */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
+                <select
+                  value={category || ''}
+                  onChange={e => {
+                    navigate(
+                      e.target.value
+                        ? `/products?category=${e.target.value}`
+                        : '/products'
+                    );
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map(cat => (
+                    <option key={cat.slug} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Sort By */}
@@ -477,8 +470,9 @@ const ProductsPage = () => {
                         isNew={product.isNew}
                         isSale={product.isSale}
                         onClick={() => handleClick(product)}
-                        onQuickView={handleQuickView}
                         className="h-full"
+                        buttonText="View Details"
+                        buttonIcon={<Eye className="h-4 w-4" />}
                       />
                       </Link>
                     </motion.div>

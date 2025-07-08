@@ -10,21 +10,21 @@ const Footer = () => {
             <div className="w-10 h-auto bg-white rounded-lg flex items-center justify-center">
               <img src="https://AidibySmartTech.b-cdn.net/SmartTech-logo.png" alt="" />
             </div>
-            <span className="text-xl font-bold">Smart Tech</span>
+            <span className="text-xl font-bold">Aidiby Smart Tech</span>
           </div>
           
           {/* Social Media Links */}
           <div className="flex items-center space-x-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://wa.me/96171545936" className="text-gray-400 hover:text-white transition-colors">
               <FaWhatsapp className="w-6 h-6" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.facebook.com/share/1YznaNgjDS/" className="text-gray-400 hover:text-white transition-colors">
               <FaFacebook className="w-6 h-6" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            {/* <a href="#" className="text-gray-400 hover:text-white transition-colors">
               <FaInstagram className="w-6 h-6" />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            </a> */}
+            <a href="https://www.tiktok.com/@aidibysmarttech?_t=ZS-8xh28t1vU4m&_r=1" className="text-gray-400 hover:text-white transition-colors">
               <FaTiktok className="w-6 h-6" />
             </a>
           </div>
@@ -32,7 +32,7 @@ const Footer = () => {
           {/* Copyright */}
           <div className="border-t border-gray-800 w-full pt-8 text-center">
             <p className="text-gray-400 text-sm">
-              <a href="/admin">©</a> 2025 Smart Tech. All rights reserved.
+              © 2025 Smart Tech. All rights reserved.
             </p>
           </div>
         </div>

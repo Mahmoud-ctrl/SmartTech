@@ -8,6 +8,7 @@ from flask import current_app, make_response
 import jwt
 import secrets
 from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_token, set_access_cookies
+from werkzeug.security import check_password_hash
 
 admin_bp = Blueprint('api', __name__, url_prefix='/api/admin')
 
@@ -31,6 +32,10 @@ def admin_login():
 
     if not admin or not admin.check_password(password):
         return jsonify({'error': 'Invalid credentials'}), 401
+    
+    if not check_password_hash(admin.password, password):
+        return jsonify({'error': 'Incorrect password'}), 401
+
 
     admin_token = create_access_token(
         identity=str(admin.id),
@@ -57,6 +62,78 @@ def check_auth():
     print(f"Admin ID: {admin_id}")
     return jsonify({"authenticated": True, "user_id": admin_id}), 200
 
+
+@admin_bp.route('/dashboard', methods=['GET'])
+@jwt_required()
+def dashboard():
+    # Counts
+    total_categories = Category.query.count()
+    total_brands = Brand.query.count()
+    total_products = Product.query.count()
+    total_admins = Admin.query.count()
+
+    # Product stats
+    in_stock = Product.query.filter_by(in_stock=True).count()
+    out_of_stock = Product.query.filter_by(in_stock=False).count()
+    new_products = Product.query.filter_by(is_new=True).count()
+    on_sale = Product.query.filter_by(is_sale=True).count()
+    total_sales = db.session.query(db.func.sum(Product.sales_count)).scalar() or 0
+
+    # Top 5 brands by product count
+    top_brands = (
+        db.session.query(Brand.name, db.func.count(Product.id).label('product_count'))
+        .join(Product, Product.brand_id == Brand.id)
+        .group_by(Brand.id)
+        .order_by(db.desc('product_count'))
+        .limit(5)
+        .all()
+    )
+    top_brands = [{'name': b[0], 'product_count': b[1]} for b in top_brands]
+
+    # Top 5 categories by product count
+    top_categories = (
+        db.session.query(Category.name, db.func.count(Product.id).label('product_count'))
+        .join(Brand, Brand.category_id == Category.id)
+        .join(Product, Product.brand_id == Brand.id)
+        .group_by(Category.id)
+        .order_by(db.desc('product_count'))
+        .limit(5)
+        .all()
+    )
+    top_categories = [{'name': c[0], 'product_count': c[1]} for c in top_categories]
+
+    # Most recent 5 products
+    recent_products = (
+        Product.query.order_by(Product.created_at.desc()).limit(5).all()
+    )
+    recent_products = [
+        {
+            'id': p.id,
+            'title': p.title,
+            'created_at': p.created_at.isoformat(),
+            'brand_id': p.brand_id
+        }
+        for p in recent_products
+    ]
+
+    return jsonify({
+        'counts': {
+            'categories': total_categories,
+            'brands': total_brands,
+            'products': total_products,
+            'admins': total_admins
+        },
+        'product_stats': {
+            'in_stock': in_stock,
+            'out_of_stock': out_of_stock,
+            'new': new_products,
+            'on_sale': on_sale,
+            'total_sales': total_sales
+        },
+        'top_brands': top_brands,
+        'top_categories': top_categories,
+        'recent_products': recent_products
+    })
 
 # ----------- CATEGORY ROUTES -----------
 
@@ -109,7 +186,11 @@ def delete_category(id):
 
 @admin_bp.route('/brands', methods=['GET'])
 def get_brands():
-    brands = Brand.query.all()
+    category_id = request.args.get('category_id', type=int)
+    if category_id:
+        brands = Brand.query.filter_by(category_id=category_id).all()
+    else:
+        brands = Brand.query.all()
     return jsonify([
         {'id': b.id, 'name': b.name, 'category_id': b.category_id}
         for b in brands
@@ -148,8 +229,20 @@ def delete_brand(id):
 def get_products():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
+    category_id = request.args.get('category_id', type=int)
+    brand_id = request.args.get('brand_id', type=int)
 
-    paginated = Product.query.paginate(page=page, per_page=per_page, error_out=False)
+    query = Product.query
+
+    if category_id:
+        query = query.join(Brand).filter(Brand.category_id == category_id)
+    
+    if brand_id:
+        query = query.filter(Product.brand_id == brand_id)
+
+    query = query.order_by(Product.created_at.desc())
+
+    paginated = query.paginate(page=page, per_page=per_page, error_out=False)
 
     products = [{
         'id': p.id,
@@ -157,14 +250,15 @@ def get_products():
         'images': p.images,
         'description': p.description,
         'price': str(p.price),
-        'original_price': str(p.original_price),
+        'original_price': str(p.original_price) if p.original_price else None,
         'review_count': p.review_count,
         'in_stock': p.in_stock,
         'is_new': p.is_new,
         'is_sale': p.is_sale,
         'sales_count': p.sales_count,
         'created_at': p.created_at.isoformat(),
-        'brand_id': p.brand_id
+        'brand_id': p.brand_id,
+        'category_id': p.brand.category_id if p.brand else None
     } for p in paginated.items]
 
     return jsonify({
@@ -178,11 +272,16 @@ def get_products():
 @admin_bp.route('/products', methods=['POST'])
 def add_product():
     data = request.get_json()
+
+    # Require price
+    if data.get('price') is None:
+        return jsonify({'error': 'price is required'}), 400
+
     product = Product(
         images=data.get('images', []),
         title=data['title'],
         description=data.get('description', ''),
-        price=data['price'],
+        price=data.get('price'),
         original_price=data.get('original_price'),
         review_count=data.get('review_count', 0),
         in_stock=data.get('in_stock', True),
@@ -199,12 +298,29 @@ def add_product():
 def update_product(id):
     product = Product.query.get_or_404(id)
     data = request.get_json()
+    
+    # Update fields that are provided in the request
     for field in ['images', 'title', 'description', 'price', 'original_price', 'review_count',
                   'in_stock', 'is_new', 'is_sale', 'sales_count', 'brand_id']:
         if field in data:
             setattr(product, field, data[field])
+    
     db.session.commit()
     return jsonify({'id': product.id, 'title': product.title})
+
+@admin_bp.route('/products/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_product(id):
+    admin_id = get_jwt_identity()
+    admin = Admin.query.get(admin_id)
+    
+    if not admin:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    product = Product.query.get_or_404(id)
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({'message': 'Product deleted'})
 
 @admin_bp.route('/upload', methods=['POST'])
 def upload_to_bunny():

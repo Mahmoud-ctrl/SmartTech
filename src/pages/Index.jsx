@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Menu, X, Search, ShoppingCart, User, Smartphone, 
-  Laptop, Headphones, Watch, Zap, Star, ArrowRight, 
+  Laptop, Headphones, Watch, Zap, Star, ArrowRight,
   TrendingUp, Shield, Truck, RefreshCw, Award, Users, 
   Clock, Gift, Heart, ChevronLeft, ChevronRight, Play, 
   Volume2, Wifi, Battery, Camera, MessageCircle, Cpu, Eye, HardDrive, Monitor 
@@ -36,23 +36,8 @@ const Index = () => {
     }
   };
   
-  const handleButtonClick = async (productId) => {
-    try {
-      await axios.post(`${API_URL}/products/${productId}/click`);
-    } catch (err) {
-      console.error("Failed to register click", err);
-    }
-  };
-
-  const handleContactWhatsApp = (productTitle) => {
-    const message = `Hi! I'm interested in ${productTitle} - ${window.location.href}`;
-    const whatsappUrl = `https://wa.me/96171234567?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
   const handleClick = (product) => {
-    handleButtonClick(product.id);
-    handleContactWhatsApp(product.title);
+    navigate(`/products/${product.id}/${createSlug(product.title)}`);
   }
 
   const fetchBestSellers = async () => {
@@ -77,32 +62,30 @@ const Index = () => {
     navigate('/products?category=all')
   }
 
-  // State for the interactive tech specs section
-  // State for the interactive tech specs section
 const techSpecFeatures = [
   {
     icon: Cpu,
     title: 'Intel Core i9 Processor',
     description: 'Unleash ultimate performance with the latest 13th Gen Intel Core i9 processor. 24 cores and 32 threads deliver exceptional speed for gaming, content creation, and multitasking.',
-    image: 'https://static1.xdaimages.com/wordpress/wp-content/uploads/2024/01/intel-core-i9-14900k-cpu-1-1.jpg'
+    image: 'https://AidibySmartTech.b-cdn.net/techSpecFeatures/intel-core-i9-14900k-cpu-1-1.jpg'
   },
   {
     icon: Monitor,
     title: 'RTX 5090 Graphics',
     description: 'Experience ray tracing and DLSS 3 with the powerful NVIDIA GeForce RTX 5090. Dominate 8K gaming and accelerate creative workflows with 32GB of GDDR7 memory.',
-    image: 'https://cdn.asoworld.com/img/substation/trade/contentbcc90c823f3445c59c649778fce1b4a8.png'
+    image: 'https://AidibySmartTech.b-cdn.net/techSpecFeatures/contentbcc90c823f3445c59c649778fce1b4a8.png'
   },
   {
     icon: HardDrive,
     title: '2TB NVMe SSD',
     description: 'Lightning-fast storage with PCIe 4.0 NVMe SSD technology. Boot Windows in seconds and load games instantly with read speeds up to 7,000 MB/s.',
-    image: 'https://assets-prd.ignimgs.com/2023/07/03/samsung980prossd2-1688411070077.jpg'
+    image: 'https://AidibySmartTech.b-cdn.net/techSpecFeatures/samsung980prossd2-1688411070077.jpg'
   },
   {
     icon: Zap,
     title: 'Liquid Cooling System',
     description: 'Advanced AIO liquid cooling keeps your system running cool and quiet under heavy loads. RGB lighting adds style while maintaining optimal temperatures.',
-    image: 'https://hyte.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fmqc7p4g4%2Fproduction%2F826cb8d4ab67d3afbd665d05ef84c7ff8495b701-1920x1080.webp%3Fq%3D75%26fit%3Dclip%26auto%3Dformat&w=3840&q=75'
+    image: 'https://AidibySmartTech.b-cdn.net/techSpecFeatures/LiquidCooling.jpg'
   }
 ];
 
@@ -111,23 +94,23 @@ const techSpecFeatures = [
       id: 1,
       name: "Gaming Setup",
       description: "Pro gaming gear & accessories",
-      image: "https://www.technoidgamingpc.com/cdn/shop/articles/Customizing_Your_PC_Case_Ideas_and_Inspiration.webp?v=1728053273",
+      image: "https://AidibySmartTech.b-cdn.net/Categories/Customizing_Your_PC_Case_Ideas_and_Inspiration.webp",
       isFeatured: true,
       slug: 'gaming-setup'
     },
     {
       id: 2,
-      name: "Smartphones",
+      name: "Printers",
       description: "Latest models",
-      image: "https://static1.anpoimages.com/wordpress/wp-content/uploads/wm/2025/01/samsung-galaxy-s25-ultra-hands-on-81.jpg",
+      image: "https://AidibySmartTech.b-cdn.net/Categories/photo-1708793699492-5fa208f52dcb.jpg",
       isFeatured: false,
-      slug: 'mobile-phones'
+      slug: 'printers'
     },
     {
       id: 3,
       name: "Monitors",
       description: "High resolution",
-      image: "https://www.pcworld.com/wp-content/uploads/2025/04/alienware-aw3423dwf-4-1-2.jpg?quality=50&strip=all",
+      image: "https://AidibySmartTech.b-cdn.net/Categories/alienware-aw3423dwf-4-1-2%5B1%5D.jpg",
       isFeatured: false,
       slug: 'monitors'
     },
@@ -135,7 +118,7 @@ const techSpecFeatures = [
       id: 4,
       name: "Laptops",
       description: "Power & portability",
-      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop",
+      image: "https://AidibySmartTech.b-cdn.net/Categories/photo-1541807084-5c52b6b3adef.jpg",
       isFeatured: false,
       slug: 'laptops'
     },
@@ -143,7 +126,7 @@ const techSpecFeatures = [
       id: 5,
       name: "Accessories",
       description: "Smart accessories",
-      image: "https://cdn.shopify.com/s/files/1/1901/8767/articles/The_best_tech_and_desk_accessories_this_year.jpg?v=1663643846",
+      image: "https://AidibySmartTech.b-cdn.net/Categories/The_best_tech_and_desk_accessories_this_year.jpg",
       isFeatured: false,
       slug: 'accessories'
     }
@@ -153,15 +136,11 @@ const techSpecFeatures = [
   const regularCategories = categories.filter(cat => !cat.isFeatured);
 
    const handleCategoryClick = (category) => {
-    console.log(`Navigating to ${category.name}:`, category.slug);
     navigate(`/products?category=${category.slug}`);
   };
 
   const [activeSpec, setActiveSpec] = useState(0);
 
-  const handleAddToCart = (productId) => { console.log('Added to cart:', productId); };
-  const handleWishlist = (productId) => { console.log('Added to wishlist:', productId); };
-  const handleQuickView = (productId) => { console.log('Quick view:', productId); };
   const getOpenStatus = () => {
   const now = new Date();
   const hours = now.getHours(); // 0–23
@@ -185,8 +164,8 @@ const techSpecFeatures = [
                 <Truck className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Free Shipping</h3>
-                <p className="text-sm text-gray-600">On orders over $99</p>
+                <h3 className="font-semibold text-gray-900">Fast Delivery</h3>
+                <p className="text-sm text-gray-600">Same-day delivery</p>
               </div>
             </div>
             <div className="group flex cursor-pointer items-center justify-center space-x-3">
@@ -319,8 +298,9 @@ const techSpecFeatures = [
                   <Card
                     {...product}
                     image={product.images[0]}
+                    buttonText='View Details'
+                    buttonIcon={<ArrowRight className="h-4 w-4" />}
                     onClick={() => handleClick(product)}
-                    onQuickView={handleQuickView}
                   />
                 </Link>
               </div>
@@ -394,8 +374,9 @@ const techSpecFeatures = [
                 <Card  
                   {...product} 
                   image={product.images[0]}
+                  buttonText='View Details'
+                  buttonIcon={<ArrowRight className="h-4 w-4" />}
                   onClick={() => handleClick(product)} 
-                  onQuickView={handleQuickView} 
                 />
               </Link>
             ))}
@@ -508,7 +489,6 @@ const techSpecFeatures = [
               <button
                 onClick={() => {
                   navigate(`/products?category=all`, { state: { isSale: true } });
-                  console.log("Is Sale:", true);
                 }}
                 className="group flex items-center space-x-1 font-semibold text-red-600 hover:text-red-800"
               >
@@ -537,8 +517,9 @@ const techSpecFeatures = [
                   <Card 
                     {...product} 
                     image={product.images[0]}
+                    buttonText='View Details'
+                    buttonIcon={<ArrowRight className="h-4 w-4" />}
                     onClick={() => handleClick(product)}
-                    onQuickView={handleQuickView} 
                   />
                 </Link>
               ))}
